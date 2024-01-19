@@ -24,7 +24,13 @@ export const authOptions: NextAuthOptions = {
           const siwe = new SiweMessage(
             JSON.parse(credentials?.message || "{}")
           );
+
           const nextAuthUrl = new URL(process.env.NEXTAUTH_URL as string);
+          // console.log("credentials", credentials);
+          // console.log("req", req);
+          // console.log("siwe", siwe);
+          // console.log("nextAuthUrl", nextAuthUrl);
+          // console.log("process.env.VERCEL_URL", process.env.VERCEL_URL);
           const secret = process.env.NEXTAUTH_SECRET;
           const result = await siwe.verify({
             signature: credentials?.signature || "",
@@ -32,7 +38,7 @@ export const authOptions: NextAuthOptions = {
             // nonce: await getCsrfToken({ req }),
             nonce: await getCsrfToken({ req: { headers: req.headers } }),
           });
-
+          // console.log(result);
           if (result.success) {
             return {
               id: siwe.address,
@@ -40,6 +46,7 @@ export const authOptions: NextAuthOptions = {
           }
           return null;
         } catch (e) {
+          console.log("error:", e);
           return null;
         }
       },

@@ -82,7 +82,6 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
             });
     };
 
-    // console.log(API_BASE_URL)
     return (
         <>
             <div className="">
@@ -105,7 +104,6 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
                     )}
 
                 </StyledTimePickerContainer>
-                {/* {API_BASE_URL} */}
             </div>
         </>
     )

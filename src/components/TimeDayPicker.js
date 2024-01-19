@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import TimePicker from './TimePicker';
 import styled from 'styled-components';
 import DayTimeSchedule from './DayTimeSchedule';
 
@@ -128,6 +127,18 @@ function TimeDayPicker() {
         setSelectedDays(tempSelectedDays);
     };
 
+    const handleAPICall = async () => {
+        const response = await fetch('api/hello/12', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ hello: 'hello', })
+        });
+        const result = await response.json();
+        console.log("result", result);
+    }
+
     return (
         <>
             <div className="">
@@ -177,14 +188,9 @@ function TimeDayPicker() {
                                 </StyledSection>
                             </div>
                             <StyledButton onClick={handleApplyButtonClick}>Apply</StyledButton>
+                            {/* <StyledButton onClick={handleAPICall}>Call</StyledButton> */}
                         </div>
                         <div className='flex justify-between mt-4 ml-[13rem]'>
-                            {/* <TimePicker
-                                timeSlotSizeMinutes={timeSlotSizeMinutes}
-                                availabilityStartTime={availabilityStartTime}
-                                availabilityEndTime={availabilityEndTime}
-                                selectedDays={selectedDays}
-                            /> */}
                             <DayTimeSchedule
                                 timeSlotSizeMinutes={timeSlotSizeMinutes}
                                 availabilityStartTime={availabilityStartTime}
