@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { getCsrfToken, useSession } from "next-auth/react";
 import { useAccount, useConnect, useNetwork, useSignMessage } from "wagmi";
 
-function page() {
+function Profile() {
   const { address, isConnected } = useAccount();
   const { data: session, status } = useSession();
   const loading = status === "loading";
@@ -73,4 +73,4 @@ function page() {
   }
 }
 
-export default page;
+export default Profile;
