@@ -15,6 +15,11 @@ const StyledTimePickerContainer = styled.div`
     box-shadow: 0 2px 24px rgba(0, 0, 0, 0.1);
 `;
 
+const dateString = "Thu Apr 04 2024 16:00:00 GMT+0530 (India Standard Time)";
+const epochTime = new Date(dateString).getTime() / 1000;
+
+console.log(epochTime);
+
 function customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEndTime) {
     const startTime = new Date(slotTime);
     const availabilityStart = new Date(slotTime);

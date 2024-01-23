@@ -60,6 +60,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: { session: any; token: any }) {
       session.address = token.sub;
       session.user.name = token.sub;
+      // console.log(session);
+      // console.log(token)
       return session;
     },
   },
