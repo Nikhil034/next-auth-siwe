@@ -19,4 +19,4 @@ const handleAPICall = async () => {
     console.log("result", result);
 }
 
-<StyledButton onClick={handleAPICall}>Call</StyledButton> 
+{/* <StyledButton onClick={handleAPICall}>Call</StyledButton>  */ }
