@@ -2,25 +2,15 @@
 
 import DayTimeScheduler from '@captainwalterdev/daytimescheduler'
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { fakeRequest } from './fakeRequest';
 import { API_BASE_URL } from '@/config/constants'
-
-const StyledTimePickerContainer = styled.div`
-    width: fit-content;
-    margin: 0 auto;
-    padding: 14px;
-    background-color: #f0fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.1);
-`;
-
-const dateString = "Thu Apr 04 2024 16:00:00 GMT+0530 (India Standard Time)";
-const epochTime = new Date(dateString).getTime() / 1000;
-
-console.log(epochTime);
+import { StyledTimePickerContainer } from "@/components/style components/StylesDayTimeSchedule"
 
 function customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEndTime) {
+    // console.log("slotTime", slotTime)
+    // console.log("availabilityStartTime", availabilityStartTime)
+    // console.log("availabilityEndTime", availabilityEndTime)
+
     const startTime = new Date(slotTime);
     const availabilityStart = new Date(slotTime);
     const availabilityEnd = new Date(slotTime);
@@ -32,15 +22,10 @@ function customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEn
     availabilityEnd.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
 
     const dayOfWeek = startTime.getDay();
-    // const isDaySelected = selectedValidDays[getDayName(dayOfWeek)];
 
-    // return isDaySelected && slotTime >= availabilityStart && slotTime <= availabilityEnd;
+    // console.log("availabilityStart", availabilityStart)
+    // console.log("availabilityEnd", availabilityEnd)
     return slotTime >= availabilityStart && slotTime <= availabilityEnd;
-}
-
-function getDayName(dayIndex) {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    return days[dayIndex];
 }
 
 
@@ -49,11 +34,9 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
     const [isScheduled, setIsScheduled] = useState(false);
     const [scheduleErr, setScheduleErr] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    // const selectedDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
     const trueDaysArray = Object.keys(selectedValidDays).filter(day => selectedValidDays[day]);
     const selectedDays = trueDaysArray;
-    // console.log(selectedDays)
 
     useEffect(() => {
         const loadingTimeout = setTimeout(() => {
@@ -92,7 +75,7 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
             <div className="">
                 <StyledTimePickerContainer>
                     {isLoading ? (
-                        <div>Loading...</div>
+                        <div style={{ padding: "1rem" }}>Loading...</div>
                     ) : (
                         <DayTimeScheduler
                             selectedDays={selectedDays}
@@ -105,9 +88,7 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
                                 customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEndTime)
                             }
                         />
-
                     )}
-
                 </StyledTimePickerContainer>
             </div>
         </>
