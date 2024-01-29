@@ -64,10 +64,10 @@ function TimeDayPicker() {
       clearTimeout(loadingTimeout);
     };
   }, []);
-  const getZones = async () => {
-    const zones = moment.tz.names();
-    console.log(zones);
-  };
+  // const getZones = async () => {
+  //   const zones = moment.tz.names();
+  //   console.log(zones);
+  // };
 
   const handleTimeSlotChange = (event) => {
     setTempTimeSlotSizeMinutes(parseInt(event.target.value, 10));
@@ -238,7 +238,7 @@ function TimeDayPicker() {
           </>
         )}
       </div>
-      <button onClick={getZones()}> papita</button>
+      {/* <button onClick={getZones()}> papita</button> */}
     </>
   );
 }
