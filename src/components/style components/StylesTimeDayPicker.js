@@ -11,6 +11,15 @@ export const StyledTimeDayPicker = styled.div`
     display: flex
 `;
 
+export const StyledDropdown = styled.div`
+    margin-bottom: 20px;
+    span {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+`;
+
 export const StyledSection = styled.div`
     margin-bottom: 20px;
     label {
@@ -44,6 +53,77 @@ export const StyledSection = styled.div`
     }
 `;
 
+
+export const StyledToggle = styled.button`
+.toggle-switches {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+  }
+
+  .toggle-switch {
+    display: flex;
+    align-items: center;
+  }
+
+  .toggle-switch span {
+    margin-right: 5px;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: -5px;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .1s;
+    transition: .1s;
+    border-radius: 34px;
+
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .1s;
+    transition: .1s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: #4CAF50;
+  }
+
+  input:focus + .slider {
+    box-shadow: 0 0 1px #4CAF50;
+  }
+
+  input:checked + .slider:before {
+    -webkit-transform: translateX(20px);
+    -ms-transform: translateX(20px);
+    transform: translateX(20px);
+  }
+`;
 export const StyledButton = styled.button`
     background-color: #3498db;
     color: #fff;
