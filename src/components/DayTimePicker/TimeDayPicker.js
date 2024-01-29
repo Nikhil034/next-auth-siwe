@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import moment from "moment-timezone";
+
 import Select from "react-select";
 import DayTimeSchedule from "./DayTimeSchedule";
 import {
@@ -62,6 +64,10 @@ function TimeDayPicker() {
       clearTimeout(loadingTimeout);
     };
   }, []);
+  const getZones = async () => {
+    const zones = moment.tz.names();
+    console.log(zones);
+  };
 
   const handleTimeSlotChange = (event) => {
     setTempTimeSlotSizeMinutes(parseInt(event.target.value, 10));
@@ -97,22 +103,47 @@ function TimeDayPicker() {
   //   };
 
   const handleApplyButtonClick = () => {
+    // Convert availability start and end times to UTC based on the selected timezone
+    const userTimezone = selectedOption ? selectedOption.value : "UTC";
+
+    // Format the time string to HH:mm:ss
+    const formattedStartTime = moment(
+      tempAvailabilityStartTime,
+      "HH:mm"
+    ).format("HH:mm:ss");
+    const formattedEndTime = moment(tempAvailabilityEndTime, "HH:mm").format(
+      "HH:mm:ss"
+    );
+
+    // Combine the formatted time with the date (using a dummy date)
+    const combinedStartTime = moment(`2000-01-01 ${formattedStartTime}`).tz(
+      userTimezone
+    );
+    const combinedEndTime = moment(`2000-01-01 ${formattedEndTime}`).tz(
+      userTimezone
+    );
+
+    // Extract the time part in UTC format
+    const availabilityStartTimeUTC = combinedStartTime.utc().format("HH:mm");
+    const availabilityEndTimeUTC = combinedEndTime.utc().format("HH:mm");
+
     const data = {
       timeSlotSizeMinutes: tempTimeSlotSizeMinutes,
-      availabilityStartTime: tempAvailabilityStartTime,
-      availabilityEndTime: tempAvailabilityEndTime,
+      availabilityStartTime: availabilityStartTimeUTC,
+      availabilityEndTime: availabilityEndTimeUTC,
       selectedDays: tempSelectedDays,
-      selectedTimeZone: selectedOption ? selectedOption.value : "",
+      selectedTimeZone: userTimezone,
     };
 
+    // Store data in the database, perform other actions...
+
     setTimeSlotSizeMinutes(tempTimeSlotSizeMinutes);
-    setAvailabilityStartTime(tempAvailabilityStartTime);
-    setAvailabilityEndTime(tempAvailabilityEndTime);
+    setAvailabilityStartTime(availabilityStartTimeUTC);
+    setAvailabilityEndTime(availabilityEndTimeUTC);
     setSelectedDays(tempSelectedDays);
 
     console.log(data);
   };
-
   return (
     <>
       <div className="">
@@ -207,6 +238,7 @@ function TimeDayPicker() {
           </>
         )}
       </div>
+      <button onClick={getZones()}> papita</button>
     </>
   );
 }
