@@ -81,26 +81,12 @@ function TimeDayPicker() {
     setTempAvailabilityEndTime(event.target.value);
   };
 
-  const handleDayCheckboxChange = (day) => {
-    setTempSelectedDays((prevSelectedDays) => ({
-      ...prevSelectedDays,
-      [day]: !prevSelectedDays[day],
-    }));
-  };
-
   const handleDayToggle = (day) => {
     setTempSelectedDays((prevSelectedDays) => ({
       ...prevSelectedDays,
       [day]: !prevSelectedDays[day],
     }));
   };
-
-  //   const handleApplyButtonClick = () => {
-  //     setTimeSlotSizeMinutes(tempTimeSlotSizeMinutes);
-  //     setAvailabilityStartTime(tempAvailabilityStartTime);
-  //     setAvailabilityEndTime(tempAvailabilityEndTime);
-  //     setSelectedDays(tempSelectedDays);
-  //   };
 
   const handleApplyButtonClick = () => {
     // Convert availability start and end times to UTC based on the selected timezone
