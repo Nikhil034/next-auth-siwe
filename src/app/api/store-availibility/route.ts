@@ -4,6 +4,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 // Define the request body type
 interface StoreAvailabilityRequestBody {
+  userAddress: string;
   timeSlotSizeMinutes: number;
   availabilityStartTime: string;
   availabilityEndTime: string;
@@ -24,6 +25,7 @@ interface StoreAvailabilityResponseBody {
   success: boolean;
   data?: {
     _id: string;
+    userAddress: string;
     timeSlotSizeMinutes: number;
     availabilityStartTime: string;
     availabilityEndTime: string;
@@ -48,6 +50,7 @@ export async function POST(
   res: NextApiResponse<StoreAvailabilityResponseBody>
 ) {
   const {
+    userAddress,
     timeSlotSizeMinutes,
     availabilityStartTime,
     availabilityEndTime,
@@ -56,6 +59,7 @@ export async function POST(
   }: StoreAvailabilityRequestBody = await req.json();
 
   console.log(
+    userAddress,
     timeSlotSizeMinutes,
     availabilityStartTime,
     availabilityEndTime,
@@ -67,6 +71,7 @@ export async function POST(
     // Connect to your MongoDB database
     console.log("Connecting to MongoDB...");
     const client = await MongoClient.connect(process.env.MONGODB_URI!, {
+      dbName: `chora-club`,
       useNewUrlParser: true,
       useUnifiedTopology: true, // Use this option for backward compatibility
     } as MongoClientOptions);
@@ -74,16 +79,18 @@ export async function POST(
 
     // Access the collection
     const db = client.db(process.env.MONGODB_DB!);
-    const collection = db.collection("availabilities");
+    const collection = db.collection("scheduling");
 
     // Insert the new availability document
     console.log("Inserting availability document...");
     const result = await collection.insertOne({
+      userAddress,
       timeSlotSizeMinutes,
       availabilityStartTime,
       availabilityEndTime,
       selectedDays,
       selectedTimeZone,
+
       createdAt: new Date(),
       updatedAt: new Date(),
     });

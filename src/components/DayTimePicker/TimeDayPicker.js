@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import moment from "moment-timezone";
+import { useAccount } from "wagmi";
 
 import Select from "react-select";
 import DayTimeSchedule from "./DayTimeSchedule";
@@ -10,7 +11,7 @@ import {
   StyledSection,
   StyledButton,
   StyledDropdown,
-  StyledToggle
+  StyledToggle,
 } from "@/components/style components/StylesTimeDayPicker";
 import timezonesData from "../../config/timezones.json";
 
@@ -29,6 +30,7 @@ function TimeDayPicker() {
     friday: true,
     saturday: false,
   });
+  const { address } = useAccount();
 
   const [timeSlotSizeMinutes, setTimeSlotSizeMinutes] = useState(30);
   const [jsonData, setJsonData] = useState(null);
@@ -87,12 +89,9 @@ function TimeDayPicker() {
       [day]: !prevSelectedDays[day],
     }));
   };
-
-  const handleApplyButtonClick = () => {
-    // Convert availability start and end times to UTC based on the selected timezone
+  const handleApplyButtonClick = async () => {
     const userTimezone = selectedOption ? selectedOption.value : "UTC";
 
-    // Format the time string to HH:mm:ss
     const formattedStartTime = moment(
       tempAvailabilityStartTime,
       "HH:mm"
@@ -101,19 +100,29 @@ function TimeDayPicker() {
       "HH:mm:ss"
     );
 
-    // Combine the formatted time with the date (using a dummy date)
-    const combinedStartTime = moment(`2000-01-01 ${formattedStartTime}`).tz(
-      userTimezone
-    );
-    const combinedEndTime = moment(`2000-01-01 ${formattedEndTime}`).tz(
-      userTimezone
-    );
+    const combinedStartTime = moment()
+      .set({
+        hour: moment(tempAvailabilityStartTime, "HH:mm").hour(),
+        minute: moment(tempAvailabilityStartTime, "HH:mm").minute(),
+        second: 0,
+        millisecond: 0,
+      })
+      .tz(userTimezone);
 
-    // Extract the time part in UTC format
+    const combinedEndTime = moment()
+      .set({
+        hour: moment(tempAvailabilityEndTime, "HH:mm").hour(),
+        minute: moment(tempAvailabilityEndTime, "HH:mm").minute(),
+        second: 0,
+        millisecond: 0,
+      })
+      .tz(userTimezone);
+
     const availabilityStartTimeUTC = combinedStartTime.utc().format("HH:mm");
     const availabilityEndTimeUTC = combinedEndTime.utc().format("HH:mm");
 
     const data = {
+      userAddress: address,
       timeSlotSizeMinutes: tempTimeSlotSizeMinutes,
       availabilityStartTime: availabilityStartTimeUTC,
       availabilityEndTime: availabilityEndTimeUTC,
@@ -121,14 +130,28 @@ function TimeDayPicker() {
       selectedTimeZone: userTimezone,
     };
 
-    // Store data in the database, perform other actions...
+    try {
+      const response = await fetch("/api/store-availibility", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-    setTimeSlotSizeMinutes(tempTimeSlotSizeMinutes);
-    setAvailabilityStartTime(availabilityStartTimeUTC);
-    setAvailabilityEndTime(availabilityEndTimeUTC);
-    setSelectedDays(tempSelectedDays);
+      if (!response.ok) {
+        throw new Error("Failed to store data to API");
+      }
 
-    console.log(data);
+      setTimeSlotSizeMinutes(tempTimeSlotSizeMinutes);
+      setAvailabilityStartTime(availabilityStartTimeUTC);
+      setAvailabilityEndTime(availabilityEndTimeUTC);
+      setSelectedDays(tempSelectedDays);
+
+      console.log("Data stored successfully:", data);
+    } catch (error) {
+      console.error("Error storing data to API:", error);
+    }
   };
   return (
     <>
@@ -143,9 +166,7 @@ function TimeDayPicker() {
               <div className="dropdown">
                 <StyledDropdown>
                   <label>
-                    <span>
-                      Select Time Zone:
-                    </span>
+                    <span>Select Time Zone:</span>
                     <Select
                       value={selectedOption}
                       onChange={handleSearchChange}
