@@ -5,7 +5,7 @@ import moment from "moment-timezone";
 import { useAccount } from "wagmi";
 
 import Select from "react-select";
-import DayTimeSchedule from "./DayTimeSchedule";
+import DayTimeSchedule from "./DayTimeSchedule.js";
 import {
   StyledTimeDayPicker,
   StyledSection,
@@ -138,7 +138,9 @@ function TimeDayPicker() {
         },
         body: JSON.stringify(data),
       });
+      const result = await response.json()
 
+      console.log("response.result", result)
       if (!response.ok) {
         throw new Error("Failed to store data to API");
       }
@@ -163,7 +165,7 @@ function TimeDayPicker() {
         ) : (
           <>
             <StyledTimeDayPicker>
-              <div className="dropdown">
+              <div className="dropdown" style={{ minWidth: "25%" }} >
                 <StyledDropdown>
                   <label>
                     <span>Select Time Zone:</span>

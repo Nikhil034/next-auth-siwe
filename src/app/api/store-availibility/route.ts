@@ -58,14 +58,14 @@ export async function POST(
     selectedTimeZone,
   }: StoreAvailabilityRequestBody = await req.json();
 
-  console.log(
-    userAddress,
-    timeSlotSizeMinutes,
-    availabilityStartTime,
-    availabilityEndTime,
-    selectedDays,
-    selectedTimeZone
-  );
+  // console.log(
+  //   userAddress,
+  //   timeSlotSizeMinutes,
+  //   availabilityStartTime,
+  //   availabilityEndTime,
+  //   selectedDays,
+  //   selectedTimeZone
+  // );
 
   try {
     // Connect to your MongoDB database
@@ -105,7 +105,8 @@ export async function POST(
       const insertedDocument = await collection.findOne({
         _id: result.insertedId,
       });
-      console.log("Inserted document retrieved:", insertedDocument);
+      console.log("Inserted document retrieved");
+      // console.log("Inserted document retrieved:", insertedDocument);
       return NextResponse.json({ result: insertedDocument }, { status: 200 });
     } else {
       return NextResponse.json(
