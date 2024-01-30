@@ -1,16 +1,14 @@
 "use client"
 
-import DayTimeScheduler from '@captainwalterdev/daytimescheduler'
 import React, { useState, useEffect } from 'react';
+import Select from "react-select";
+import { StyledTimePickerContainer } from "@/components/style components/StylesDayTimeSchedule";
+import DayTimeScheduler from '@captainwalterdev/daytimescheduler';
 import { fakeRequest } from './fakeRequest';
-import { API_BASE_URL } from '@/config/constants'
-import { StyledTimePickerContainer } from "@/components/style components/StylesDayTimeSchedule"
+import { API_BASE_URL } from '@/config/constants';
+import timezonesData from "../../config/timezones.json";
 
 function customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEndTime) {
-    // console.log("slotTime", slotTime)
-    // console.log("availabilityStartTime", availabilityStartTime)
-    // console.log("availabilityEndTime", availabilityEndTime)
-
     const startTime = new Date(slotTime);
     const availabilityStart = new Date(slotTime);
     const availabilityEnd = new Date(slotTime);
@@ -21,22 +19,27 @@ function customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEn
     availabilityStart.setHours(parseInt(startHour, 10), parseInt(startMinute, 10), 0, 0);
     availabilityEnd.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
 
-    const dayOfWeek = startTime.getDay();
-
-    // console.log("availabilityStart", availabilityStart)
-    // console.log("availabilityEnd", availabilityEnd)
     return slotTime >= availabilityStart && slotTime <= availabilityEnd;
 }
-
 
 function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedValidDays, availabilityEndTime }) {
     const [isScheduling, setIsScheduling] = useState(false);
     const [isScheduled, setIsScheduled] = useState(false);
     const [scheduleErr, setScheduleErr] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedOption, setSelectedOption] = useState(null);
 
     const trueDaysArray = Object.keys(selectedValidDays).filter(day => selectedValidDays[day]);
     const selectedDays = trueDaysArray;
+
+    const handleSearchChange = (selectedOption) => {
+        setSelectedOption(selectedOption);
+    };
+
+    const options = timezonesData.map((timezone) => ({
+        value: timezone.name,
+        label: `${timezone.name} (${timezone.offset})`,
+    }));
 
     useEffect(() => {
         const loadingTimeout = setTimeout(() => {
@@ -51,7 +54,6 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
     const handleScheduled = (date) => {
         setIsScheduling(true);
         setScheduleErr('');
-        // console.log(date);
 
         fakeRequest(date)
             .then(json => {
@@ -71,12 +73,24 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
     };
 
     return (
-        <>
-            <div className="">
-                <StyledTimePickerContainer>
-                    {isLoading ? (
-                        <div style={{ padding: "1rem" }}>Loading...</div>
-                    ) : (
+        <div className="">
+            <div className="dropdown">
+                <label>
+                    <span>Select Time Zone:</span>
+                    <Select
+                        value={selectedOption}
+                        onChange={handleSearchChange}
+                        options={options}
+                        isSearchable
+                    />
+                </label>
+            </div>
+            <StyledTimePickerContainer>
+                {isLoading ? (
+                    <div style={{ padding: "1rem" }}>Loading...</div>
+                ) : (
+                    <>
+
                         <DayTimeScheduler
                             selectedDays={selectedDays}
                             timeSlotSizeMinutes={timeSlotSizeMinutes}
@@ -88,11 +102,11 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
                                 customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEndTime)
                             }
                         />
-                    )}
-                </StyledTimePickerContainer>
-            </div>
-        </>
-    )
+                    </>
+                )}
+            </StyledTimePickerContainer>
+        </div>
+    );
 }
 
-export default DayTimeSchedule
+export default DayTimeSchedule;
