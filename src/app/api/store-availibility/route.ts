@@ -72,13 +72,11 @@ export async function POST(
     console.log("Connecting to MongoDB...");
     const client = await MongoClient.connect(process.env.MONGODB_URI!, {
       dbName: `chora-club`,
-      useNewUrlParser: true,
-      useUnifiedTopology: true, // Use this option for backward compatibility
     } as MongoClientOptions);
     console.log("Connected to MongoDB");
 
     // Access the collection
-    const db = client.db(process.env.MONGODB_DB!);
+    const db = client.db();
     const collection = db.collection("scheduling");
 
     // Insert the new availability document
