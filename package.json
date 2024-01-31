@@ -16,6 +16,7 @@
     "axios": "^1.6.5",
     "ethers": "^5.7.2",
     "http-proxy-middleware": "^2.0.6",
+    "luxon": "^3.4.4",
     "moment-timezone": "^0.5.44",
     "mongodb": "^6.3.0",
     "mongoose": "^8.0.4",
