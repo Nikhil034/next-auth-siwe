@@ -5,7 +5,7 @@ import { DateTime, Duration } from "luxon";
 import { useAccount } from "wagmi";
 
 import Select from "react-select";
-import DayTimeSchedule from "./DayTimeSchedule";
+import DayTimeSchedule from "./DayTimeSchedule.js";
 import {
   StyledTimeDayPicker,
   StyledSection,
@@ -156,7 +156,7 @@ function TimeDayPicker() {
         ) : (
           <>
             <StyledTimeDayPicker>
-              <div className="dropdown">
+              <div className="dropdown" style={{ minWidth: "25%" }} >
                 <StyledDropdown>
                   <label>
                     <span>Select Time Zone:</span>
