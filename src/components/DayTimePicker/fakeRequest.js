@@ -1,4 +1,5 @@
 export function fakeRequest(data) {
+    console.log("data in fakeRequest", data);
     // eslint-disable-next-line no-unused-vars
     return new Promise((resolve, reject) => {
         setTimeout(() => {

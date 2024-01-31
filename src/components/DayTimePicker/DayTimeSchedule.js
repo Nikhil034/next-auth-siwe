@@ -1,78 +1,26 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Select from "react-select";
-import moment from 'moment-timezone';
 import { StyledTimePickerContainer } from "@/components/style components/StylesDayTimeSchedule";
 import DayTimeScheduler from '@captainwalterdev/daytimescheduler';
 import { fakeRequest } from './fakeRequest';
-import { API_BASE_URL } from '@/config/constants';
-import timezonesData from "../../config/timezones.json";
 
-function customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEndTime) {
-    // No changes in customTimeSlotValidator function
-    const availabilityStart = new Date(slotTime);
-    const availabilityEnd = new Date(slotTime);
-
-    availabilityStart.setHours(availabilityStartTime.getHours(), availabilityStartTime.getMinutes(), 0, 0);
-    availabilityEnd.setHours(availabilityEndTime.getHours(), availabilityEndTime.getMinutes(), 0, 0);
-
-    return slotTime >= availabilityStart && slotTime <= availabilityEnd;
-}
-
-// function customTimeSlotValidator(slotTime, availabilityStartTime, availabilityEndTime) {
-//     const availabilityStart = new Date(slotTime);
-//     const availabilityEnd = new Date(slotTime);
-
-//     console.log("availabilityStartTime", availabilityStartTime);
-//     console.log("availabilityEndTime", availabilityEndTime);
-
-//     const [startHour, startMinute] = availabilityStartTime.split(':');
-//     const [endHour, endMinute] = availabilityEndTime.split(':');
-
-//     availabilityStart.setHours(parseInt(startHour, 10), parseInt(startMinute, 10), 0, 0);
-//     availabilityEnd.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
-
-//     return slotTime >= availabilityStart && slotTime <= availabilityEnd;
-// }
-
-function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedValidDays, availabilityEndTime }) {
+function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, availabilityEndTime }) {
     const [isScheduling, setIsScheduling] = useState(false);
     const [isScheduled, setIsScheduled] = useState(false);
     const [scheduleErr, setScheduleErr] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedOption, setSelectedOption] = useState();
-
-    // Add state variables and setter functions for availability start and end times
-    const [convertedAvailabilityStartTime, setConvertedAvailabilityStartTime] = useState(availabilityStartTime);
-    const [convertedAvailabilityEndTime, setConvertedAvailabilityEndTime] = useState(availabilityEndTime);
-
-    const trueDaysArray = Object.keys(selectedValidDays).filter(day => selectedValidDays[day]);
-    const selectedDays = trueDaysArray;
-
-    const handleSearchChange = (selectedOption) => {
-        if (selectedOption) {
-            const selectedTimezone = selectedOption.value;
-
-            // Convert availabilityStartTime from UTC to selected timezone
-            const convertedStartTime = moment.utc(availabilityStartTime, 'HH:mm').tz(selectedTimezone, true).toDate();
-
-            // Convert availabilityEndTime from UTC to selected timezone
-            const convertedEndTime = moment.utc(availabilityEndTime, 'HH:mm').tz(selectedTimezone, true).toDate();
-
-            // Update the state with the converted values
-            setConvertedAvailabilityStartTime(convertedStartTime);
-            setConvertedAvailabilityEndTime(convertedEndTime);
-        }
-
-        setSelectedOption(selectedOption);
-    };
-
+    const [selectedDays, setSelectedDays] = useState([])
 
     useEffect(() => {
         const loadingTimeout = setTimeout(() => {
             setIsLoading(false);
         }, 2000);
+
+        // Dynamically generate the selectedDays array based on allowedDates
+        const selectedDays = allowedDates.map(dateString => getDayName(dateString));
+
+        setSelectedDays(selectedDays);
 
         return () => {
             clearTimeout(loadingTimeout);
@@ -82,7 +30,7 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
     const handleScheduled = (date) => {
         setIsScheduling(true);
         setScheduleErr('');
-
+        console.log("date in handleScheduled", date)
         fakeRequest(date)
             .then(json => {
                 setScheduleErr('');
@@ -100,26 +48,48 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
             });
     };
 
-    // Update timeSlotValidator function to use the converted values
-    const timeSlotValidator = (slotTime) => {
-        return customTimeSlotValidator(slotTime, convertedAvailabilityStartTime, convertedAvailabilityEndTime);
-    };
+    const allowedDates = ['2024-02-01', '2024-02-02', '2024-02-03', '2024-02-04', '2024-02-05'];
+    const allowedTimeRanges = [
+        [10, 0, 12, 0],  // Morning: 10:00 to 12:00
+        [14, 0, 20, 0]   // Afternoon: 14:00 to 20:00
+    ];
+
+    function getDayName(dateString) {
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const date = new Date(dateString);
+        const dayIndex = date.getDay();
+        return dayNames[dayIndex];
+    }
+
+    function timeSlotValidator(slotTime, allowedDates, allowedTimeRanges) {
+        const dayName = getDayName(slotTime.toISOString().split('T')[0]);
+        const isDayValid = allowedDates.includes(dayName);
+        const isTimeValid = allowedTimeRanges.some(([startHour, startMinute, endHour, endMinute]) => {
+            const startTime = new Date(
+                slotTime.getFullYear(),
+                slotTime.getMonth(),
+                slotTime.getDate(),
+                startHour,
+                startMinute,
+                0
+            );
+            const endTime = new Date(
+                slotTime.getFullYear(),
+                slotTime.getMonth(),
+                slotTime.getDate(),
+                endHour,
+                endMinute,
+                0
+            );
+            return slotTime.getTime() >= startTime.getTime() && slotTime.getTime() <= endTime.getTime();
+        });
+        return isDayValid && isTimeValid;
+    }
 
     return (
         <div className="" style={{ display: "flex" }}>
             <div className="dropdown" style={{ minWidth: "300px", marginRight: "10px" }}>
-                <label>
-                    <span>Select Time Zone:</span>
-                    <Select
-                        value={selectedOption}
-                        onChange={handleSearchChange}
-                        options={timezonesData.map((timezone) => ({
-                            value: timezone.name,
-                            label: `${timezone.name} (${timezone.offset})`,
-                        }))}
-                        isSearchable
-                    />
-                </label>
+
             </div>
             <StyledTimePickerContainer>
                 {isLoading ? (
@@ -133,8 +103,7 @@ function DayTimeSchedule({ timeSlotSizeMinutes, availabilityStartTime, selectedV
                             isDone={isScheduled}
                             err={scheduleErr}
                             onConfirm={handleScheduled}
-                            // Pass the updated timeSlotValidator function
-                            timeSlotValidator={timeSlotValidator}
+                            timeSlotValidator={(slotTime) => timeSlotValidator(slotTime, allowedDates, allowedTimeRanges)}
                         />
                     </>
                 )}

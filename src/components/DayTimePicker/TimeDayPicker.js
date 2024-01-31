@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment-timezone";
 import { useAccount } from "wagmi";
-
 import Select from "react-select";
 import DayTimeSchedule from "./DayTimeSchedule.js";
 import {
@@ -89,37 +88,53 @@ function TimeDayPicker() {
       [day]: !prevSelectedDays[day],
     }));
   };
+
   const handleApplyButtonClick = async () => {
-    const userTimezone = selectedOption ? selectedOption.value : "UTC";
+    console.log("selectedOption", selectedOption)
+    // const userTimezone = selectedOption ? selectedOption.value : "UTC";
+    const userTimezone = moment.tz.guess();
 
-    const formattedStartTime = moment(
-      tempAvailabilityStartTime,
-      "HH:mm"
-    ).format("HH:mm:ss");
-    const formattedEndTime = moment(tempAvailabilityEndTime, "HH:mm").format(
-      "HH:mm:ss"
-    );
 
-    const combinedStartTime = moment()
-      .set({
-        hour: moment(tempAvailabilityStartTime, "HH:mm").hour(),
-        minute: moment(tempAvailabilityStartTime, "HH:mm").minute(),
-        second: 0,
-        millisecond: 0,
-      })
-      .tz(userTimezone);
+    const formattedStartTime = moment(tempAvailabilityStartTime, "HH:mm").format("HH:mm");
+    const formattedEndTime = moment(tempAvailabilityEndTime, "HH:mm").format("HH:mm");
 
-    const combinedEndTime = moment()
-      .set({
-        hour: moment(tempAvailabilityEndTime, "HH:mm").hour(),
-        minute: moment(tempAvailabilityEndTime, "HH:mm").minute(),
-        second: 0,
-        millisecond: 0,
-      })
-      .tz(userTimezone);
+    const combinedStartTime = moment(`2000-01-01 ${formattedStartTime}`).tz(userTimezone);
+    const combinedEndTime = moment(`2000-01-01 ${formattedEndTime}`).tz(userTimezone);
+
+    // const combinedStartTime = moment(`${moment().format("YYYY-MM-DD")} ${formattedStartTime}`).tz(userTimezone);
+    // const combinedEndTime = moment(`${moment().format("YYYY-MM-DD")} ${formattedEndTime}`).tz(userTimezone);
+
+    // const combinedStartTime = moment()
+    //   .set({
+    //     hour: moment(tempAvailabilityStartTime, "HH:mm").hour(),
+    //     minute: moment(tempAvailabilityStartTime, "HH:mm").minute(),
+    //     second: 0,
+    //     millisecond: 0,
+    //   }).tz(userTimezone);
+    // const combinedEndTime = moment()
+    //   .set({
+    //     hour: moment(tempAvailabilityEndTime, "HH:mm").hour(),
+    //     minute: moment(tempAvailabilityEndTime, "HH:mm").minute(),
+    //     second: 0,
+    //     millisecond: 0,
+    //   }).tz(userTimezone);
 
     const availabilityStartTimeUTC = combinedStartTime.utc().format("HH:mm");
     const availabilityEndTimeUTC = combinedEndTime.utc().format("HH:mm");
+
+
+    console.log("userTimezone", userTimezone);
+    console.log("tempAvailabilityStartTime", tempAvailabilityStartTime)
+    console.log("tempAvailabilityEndTime", tempAvailabilityEndTime)
+    console.log("formattedStartTime", formattedStartTime)
+    console.log("formattedEndTime", formattedEndTime)
+
+    console.log("combinedStartTime", combinedStartTime);
+    console.log("combinedEndTime", combinedEndTime);
+
+
+    console.log("availabilityStartTimeUTC", availabilityStartTimeUTC)
+    console.log("availabilityEndTimeUTC", availabilityEndTimeUTC)
 
     const data = {
       userAddress: address,
@@ -138,9 +153,9 @@ function TimeDayPicker() {
         },
         body: JSON.stringify(data),
       });
-      const result = await response.json()
+      const resultData = await response.json()
 
-      console.log("response.result", result)
+      console.log("result", resultData.result)
       if (!response.ok) {
         throw new Error("Failed to store data to API");
       }
@@ -150,7 +165,7 @@ function TimeDayPicker() {
       setAvailabilityEndTime(availabilityEndTimeUTC);
       setSelectedDays(tempSelectedDays);
 
-      console.log("Data stored successfully:", data);
+      // console.log("Data stored successfully:", data);
     } catch (error) {
       console.error("Error storing data to API:", error);
     }
