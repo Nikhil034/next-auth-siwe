@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import moment from "moment-timezone";
+import { DateTime, Duration } from "luxon";
 import { useAccount } from "wagmi";
 import Select from "react-select";
 import DayTimeSchedule from "./DayTimeSchedule.js";
@@ -65,10 +65,6 @@ function TimeDayPicker() {
       clearTimeout(loadingTimeout);
     };
   }, []);
-  // const getZones = async () => {
-  //   const zones = moment.tz.names();
-  //   console.log(zones);
-  // };
 
   const handleTimeSlotChange = (event) => {
     setTempTimeSlotSizeMinutes(parseInt(event.target.value, 10));
@@ -90,37 +86,31 @@ function TimeDayPicker() {
   };
 
   const handleApplyButtonClick = async () => {
-    console.log("selectedOption", selectedOption)
     // const userTimezone = selectedOption ? selectedOption.value : "UTC";
-    const userTimezone = moment.tz.guess();
+    const userTimezone = DateTime.local().zoneName;
+    console.log(userTimezone);
 
+    const combinedStartTime = DateTime.fromFormat(
+      tempAvailabilityStartTime,
+      "HH:mm"
+    )
+      .set({ second: 0, millisecond: 0 })
+      .setZone(userTimezone);
 
-    const formattedStartTime = moment(tempAvailabilityStartTime, "HH:mm").format("HH:mm");
-    const formattedEndTime = moment(tempAvailabilityEndTime, "HH:mm").format("HH:mm");
+    const combinedEndTime = DateTime.fromFormat(
+      tempAvailabilityEndTime,
+      "HH:mm"
+    )
+      .set({ second: 0, millisecond: 0 })
+      .setZone(userTimezone);
 
-    const combinedStartTime = moment(`2000-01-01 ${formattedStartTime}`).tz(userTimezone);
-    const combinedEndTime = moment(`2000-01-01 ${formattedEndTime}`).tz(userTimezone);
+    console.log("combinedStartTime", combinedStartTime.toString());
+    console.log("combinedENdTime", combinedEndTime.toString());
 
-    // const combinedStartTime = moment(`${moment().format("YYYY-MM-DD")} ${formattedStartTime}`).tz(userTimezone);
-    // const combinedEndTime = moment(`${moment().format("YYYY-MM-DD")} ${formattedEndTime}`).tz(userTimezone);
-
-    // const combinedStartTime = moment()
-    //   .set({
-    //     hour: moment(tempAvailabilityStartTime, "HH:mm").hour(),
-    //     minute: moment(tempAvailabilityStartTime, "HH:mm").minute(),
-    //     second: 0,
-    //     millisecond: 0,
-    //   }).tz(userTimezone);
-    // const combinedEndTime = moment()
-    //   .set({
-    //     hour: moment(tempAvailabilityEndTime, "HH:mm").hour(),
-    //     minute: moment(tempAvailabilityEndTime, "HH:mm").minute(),
-    //     second: 0,
-    //     millisecond: 0,
-    //   }).tz(userTimezone);
-
-    const availabilityStartTimeUTC = combinedStartTime.utc().format("HH:mm");
-    const availabilityEndTimeUTC = combinedEndTime.utc().format("HH:mm");
+    const availabilityStartTimeUTC = combinedStartTime
+      .toUTC()
+      .toFormat("HH:mm");
+    const availabilityEndTimeUTC = combinedEndTime.toUTC().toFormat("HH:mm");
 
 
     console.log("userTimezone", userTimezone);
@@ -144,32 +134,31 @@ function TimeDayPicker() {
       selectedDays: tempSelectedDays,
       selectedTimeZone: userTimezone,
     };
+    console.log("final DATA", data);
+    // try {
+    //   const response = await fetch("/api/store-availibility", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(data),
+    //   });
 
-    try {
-      const response = await fetch("/api/store-availibility", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      const resultData = await response.json()
+    //   if (!response.ok) {
+    //     throw new Error("Failed to store data to API");
+    //   }
 
-      console.log("result", resultData.result)
-      if (!response.ok) {
-        throw new Error("Failed to store data to API");
-      }
+    //   setTimeSlotSizeMinutes(tempTimeSlotSizeMinutes);
+    //   setAvailabilityStartTime(availabilityStartTimeUTC);
+    //   setAvailabilityEndTime(availabilityEndTimeUTC);
+    //   setSelectedDays(tempSelectedDays);
 
-      setTimeSlotSizeMinutes(tempTimeSlotSizeMinutes);
-      setAvailabilityStartTime(availabilityStartTimeUTC);
-      setAvailabilityEndTime(availabilityEndTimeUTC);
-      setSelectedDays(tempSelectedDays);
-
-      // console.log("Data stored successfully:", data);
-    } catch (error) {
-      console.error("Error storing data to API:", error);
-    }
+    //   console.log("Data stored successfully:", data);
+    // } catch (error) {
+    //   console.error("Error storing data to API:", error);
+    // }
   };
+
   return (
     <>
       <div className="">
@@ -262,7 +251,6 @@ function TimeDayPicker() {
           </>
         )}
       </div>
-      {/* <button onClick={getZones()}> papita</button> */}
     </>
   );
 }

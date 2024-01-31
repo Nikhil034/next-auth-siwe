@@ -16,6 +16,7 @@
     "axios": "^1.6.5",
     "ethers": "^5.7.2",
     "http-proxy-middleware": "^2.0.6",
+    "luxon": "^3.4.4",
     "moment-timezone": "^0.5.44",
     "mongodb": "^6.3.0",
     "mongoose": "^8.0.4",
@@ -23,6 +24,7 @@
     "next-auth": "^4.22.1",
     "pino-pretty": "^10.3.1",
     "react": "^18",
+    "react-datepicker": "^5.1.0",
     "react-dom": "^18",
     "react-select": "^5.8.0",
     "siwe": "^2.1.4",
@@ -32,6 +34,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-datepicker": "^4.19.5",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
