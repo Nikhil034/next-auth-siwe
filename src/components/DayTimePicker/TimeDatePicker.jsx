@@ -16,10 +16,11 @@ function TimeDatePicker() {
   const [isLoading, setIsLoading] = useState(true);
   const [timeSlotSizeMinutes, setTimeSlotSizeMinutes] = useState(15);
   const [selectedDate, setSelectedDate] = useState("");
-  const [timeRanges, setTimeRanges] = useState([]);
   const [dateAndRanges, setDateAndRanges] = useState([]);
-  const [rangeStart, setRangeStart] = useState("");
-  const [rangeEnd, setRangeEnd] = useState("");
+  const [startHour, setStartHour] = useState("");
+  const [startMinute, setStartMinute] = useState("");
+  const [endHour, setEndHour] = useState("");
+  const [endMinute, setEndMinute] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -28,47 +29,30 @@ function TimeDatePicker() {
     }, 2000);
   }, []);
 
-  const dateAndRanges2 = [
-    {
-      date: new Date("2024-02-08"),
-      timeRanges: [
-        [0, 0, 12, 0],
-        [14, 0, 18, 0],
-      ],
-    },
-    {
-      date: new Date("2024-02-10"),
-      timeRanges: [
-        [10, 0, 13, 0],
-        [15, 0, 19, 0],
-      ],
-    },
-  ];
-
   const handleApplyButtonClick = async () => {
     console.log("Selected Dates:", selectedDate);
   };
 
-  const handleAddTimeRange = () => {
-    if (rangeStart && rangeEnd) {
-      setTimeRanges([
-        ...timeRanges,
-        [parseInt(rangeStart), parseInt(rangeEnd)],
-      ]);
-      setRangeStart("");
-      setRangeEnd("");
-    }
-  };
-
   const handleAddSelectedDate = () => {
-    if (selectedDate && timeRanges.length > 0) {
+    if (selectedDate && startHour && startMinute && endHour && endMinute) {
       const newDateAndRange = {
         date: new Date(selectedDate),
-        timeRanges,
+        timeRanges: [
+          [
+            parseInt(startHour) || 0,
+            parseInt(startMinute) || 0,
+            parseInt(endHour) || 0,
+            parseInt(endMinute) || 0,
+          ],
+        ],
       };
+
       setDateAndRanges([...dateAndRanges, newDateAndRange]);
       setSelectedDate("");
-      setTimeRanges([]);
+      setStartHour("");
+      setStartMinute("");
+      setEndHour("");
+      setEndMinute("");
     }
   };
 
@@ -125,26 +109,53 @@ function TimeDatePicker() {
                   <div>
                     <div style={{ marginBottom: "5px" }}>
                       <label>
-                        Select Time Range (Start):
+                        {/* Start Hour: */}
                         <input
                           type="number"
-                          placeholder="Start"
-                          value={rangeStart}
-                          onChange={(e) => setRangeStart(e.target.value)}
+                          placeholder="Start Hour"
+                          value={startHour}
+                          onChange={(e) => setStartHour(e.target.value)}
+                          style={{ border: "1px solid black", margin: "2px" }}
+                          min="0"
+                          max="24"
                         />
                       </label>
                       <label>
-                        Select Time Range (End):
+                        {/* Start Minute: */}
                         <input
                           type="number"
-                          placeholder="End"
-                          value={rangeEnd}
-                          onChange={(e) => setRangeEnd(e.target.value)}
+                          placeholder="Start Minute"
+                          value={startMinute}
+                          onChange={(e) => setStartMinute(e.target.value)}
+                          style={{ border: "1px solid black", margin: "2px" }}
+                          min="0"
+                          max="60"
                         />
                       </label>
-                      <button onClick={handleAddTimeRange}>
-                        Add Time Range
-                      </button>
+                      <label>
+                        {/* End Hour: */}
+                        <input
+                          type="number"
+                          placeholder="End Hour"
+                          value={endHour}
+                          onChange={(e) => setEndHour(e.target.value)}
+                          style={{ border: "1px solid black", margin: "2px" }}
+                          min="0"
+                          max="24"
+                        />
+                      </label>
+                      <label>
+                        {/* End Minute: */}
+                        <input
+                          type="number"
+                          placeholder="End Minute"
+                          value={endMinute}
+                          onChange={(e) => setEndMinute(e.target.value)}
+                          style={{ border: "1px solid black", margin: "2px" }}
+                          min="0"
+                          max="60"
+                        />
+                      </label>
                     </div>
                   </div>
                   <div>
@@ -155,8 +166,12 @@ function TimeDatePicker() {
                   <div>
                     <h3>Selected Dates:</h3>
                     <ul>
-                      {dateAndRanges.map(({ date }) => (
-                        <li key={date.toISOString()}>{date.toDateString()}</li>
+                      {dateAndRanges.map(({ date, timeRanges }) => (
+                        <li key={date.toISOString()}>
+                          {date.toDateString()} - Time Range: [
+                          {timeRanges[0][0]}, {timeRanges[0][1]},{" "}
+                          {timeRanges[0][2]}, {timeRanges[0][3]}]
+                        </li>
                       ))}
                     </ul>
                   </div>

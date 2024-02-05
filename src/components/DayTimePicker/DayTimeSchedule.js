@@ -43,7 +43,6 @@ function DayTimeSchedule({ timeSlotSizeMinutes, allowedDates, dateAndRanges }) {
             });
     };
 
-
     function timeSlotValidator(slotTime, dateAndRanges) {
         for (const { date, timeRanges } of dateAndRanges) {
             for (const [startHour, startMinute, endHour, endMinute] of timeRanges) {
@@ -76,7 +75,6 @@ function DayTimeSchedule({ timeSlotSizeMinutes, allowedDates, dateAndRanges }) {
 
         return false; // Return false if the slot is not valid for any allowed date and time range
     }
-
 
     return (
         <div className="" style={{ display: "flex" }}>
