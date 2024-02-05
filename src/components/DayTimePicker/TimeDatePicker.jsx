@@ -46,9 +46,7 @@ function TimeDatePicker() {
   ];
 
   const handleApplyButtonClick = async () => {
-    // Perform actions on applying selected dates and time ranges
-    console.log("Selected Dates:", selectedDates);
-    console.log("Selected Time Ranges:", selectedTimeRanges);
+    console.log("Selected Dates:", selectedDate);
   };
 
   const handleAddTimeRange = () => {
@@ -172,7 +170,7 @@ function TimeDatePicker() {
                   timeSlotSizeMinutes={timeSlotSizeMinutes}
                   allowedDates={allowedDates}
                   // timeRanges={timeRanges}
-                  dateAndRanges={dateAndRanges2}
+                  dateAndRanges={dateAndRanges}
                 />
               </div>
             </div>
