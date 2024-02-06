@@ -40,7 +40,16 @@ export async function POST(
     timeSlotSizeMinutes,
     allowedDates,
     dateAndRanges,
-  }: StoreAvailabilityRequestBody = await req.json();
+    formattedUTCTime_startTime,
+    utcTime_startTime,
+    formattedUTCTime_endTime,
+    utcTime_endTime,
+  }: StoreAvailabilityRequestBody & {
+    formattedUTCTime_startTime: string;
+    utcTime_startTime: string;
+    formattedUTCTime_endTime: string;
+    utcTime_endTime: string;
+  } = await req.json();
 
   try {
     // Connect to your MongoDB database
@@ -61,6 +70,10 @@ export async function POST(
       timeSlotSizeMinutes,
       allowedDates,
       dateAndRanges,
+      formattedUTCTime_startTime,
+      utcTime_startTime,
+      formattedUTCTime_endTime,
+      utcTime_endTime,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -91,3 +104,4 @@ export async function POST(
     );
   }
 }
+
