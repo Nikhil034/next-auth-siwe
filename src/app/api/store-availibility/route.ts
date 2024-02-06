@@ -1,4 +1,4 @@
-import { MongoClient, MongoClientOptions, InsertOneResult } from "mongodb";
+import { MongoClient, MongoClientOptions } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse, NextRequest } from "next/server";
 
@@ -6,18 +6,11 @@ import { NextResponse, NextRequest } from "next/server";
 interface StoreAvailabilityRequestBody {
   userAddress: string;
   timeSlotSizeMinutes: number;
-  availabilityStartTime: string;
-  availabilityEndTime: string;
-  selectedDays: {
-    sunday: boolean;
-    monday: boolean;
-    tuesday: boolean;
-    wednesday: boolean;
-    thursday: boolean;
-    friday: boolean;
-    saturday: boolean;
-  };
-  selectedTimeZone: string;
+  allowedDates: string[];
+  dateAndRanges: Array<{
+    date: string;
+    timeRanges: Array<[string, string, string, string]>;
+  }>;
 }
 
 // Define the response body type
@@ -27,18 +20,11 @@ interface StoreAvailabilityResponseBody {
     _id: string;
     userAddress: string;
     timeSlotSizeMinutes: number;
-    availabilityStartTime: string;
-    availabilityEndTime: string;
-    selectedDays: {
-      sunday: boolean;
-      monday: boolean;
-      tuesday: boolean;
-      wednesday: boolean;
-      thursday: boolean;
-      friday: boolean;
-      saturday: boolean;
-    };
-    selectedTimeZone: string;
+    allowedDates: string[];
+    dateAndRanges: Array<{
+      date: string;
+      timeRanges: Array<[string, string, string, string]>;
+    }>;
     createdAt: Date;
     updatedAt: Date;
   } | null; // Allow null for the data property
@@ -52,20 +38,9 @@ export async function POST(
   const {
     userAddress,
     timeSlotSizeMinutes,
-    availabilityStartTime,
-    availabilityEndTime,
-    selectedDays,
-    selectedTimeZone,
+    allowedDates,
+    dateAndRanges,
   }: StoreAvailabilityRequestBody = await req.json();
-
-  // console.log(
-  //   userAddress,
-  //   timeSlotSizeMinutes,
-  //   availabilityStartTime,
-  //   availabilityEndTime,
-  //   selectedDays,
-  //   selectedTimeZone
-  // );
 
   try {
     // Connect to your MongoDB database
@@ -84,11 +59,8 @@ export async function POST(
     const result = await collection.insertOne({
       userAddress,
       timeSlotSizeMinutes,
-      availabilityStartTime,
-      availabilityEndTime,
-      selectedDays,
-      selectedTimeZone,
-
+      allowedDates,
+      dateAndRanges,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -104,7 +76,6 @@ export async function POST(
         _id: result.insertedId,
       });
       console.log("Inserted document retrieved");
-      // console.log("Inserted document retrieved:", insertedDocument);
       return NextResponse.json({ result: insertedDocument }, { status: 200 });
     } else {
       return NextResponse.json(
