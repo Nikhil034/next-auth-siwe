@@ -11,6 +11,7 @@ import {
   AddButton,
   RemoveButton,
 } from "@/components/style components/StylesTimeDayPicker.js";
+import { DateTime, Duration } from "luxon";
 
 function TimeDatePicker() {
   const [isLoading, setIsLoading] = useState(true);
@@ -21,6 +22,11 @@ function TimeDatePicker() {
   const [startMinute, setStartMinute] = useState("");
   const [endHour, setEndHour] = useState("");
   const [endMinute, setEndMinute] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const [utcStartTime, setUtcStartTime] = useState("");
+  const [utcEndTime, setUtcEndTime] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -29,23 +35,103 @@ function TimeDatePicker() {
     }, 2000);
   }, []);
 
-  const handleApplyButtonClick = async () => {
-    console.log("Selected Dates:", selectedDate);
+  const handleApplyButtonClick = () => {
+    //  getUTCTime();
   };
 
-  const handleAddSelectedDate = () => {
+  const getUTCTime = async (
+    selectedDate,
+    startHour,
+    startMinute,
+    endHour,
+    endMinute
+  ) => {
+    // const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // console.log("userTimezone", userTimezone);
+
+    const combinedDateTimeString_startTime = `${selectedDate} ${startHour}:${startMinute}:00`;
+    const localDateTime_startTime = new Date(combinedDateTimeString_startTime);
+    // console.log("localDateTime_startTime", localDateTime_startTime);
+
+    const utcDateTime_startTime = localDateTime_startTime.toUTCString();
+    // console.log("utcDateTime_startTime", utcDateTime_startTime);
+
+    const formattedUTCTime_startTime = utcDateTime_startTime.toLocaleString(
+      "en-US",
+      { timeZone: "UTC" }
+    );
+    // console.log("formattedUTCTime_startTime", formattedUTCTime_startTime);
+
+    const utcFromFormatTime_startTime = DateTime.fromFormat(
+      formattedUTCTime_startTime,
+      "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
+    );
+    const utcTime_startTime = utcFromFormatTime_startTime.toFormat("HH:mm");
+    setUtcStartTime(utcTime_startTime);
+    console.log("utcTime_startTime", utcTime_startTime);
+    const [startHourTime, startMinuteTime] = utcTime_startTime.split(":");
+    //----------------------------------------------------------------//
+    const combinedDateTimeString_endTime = `${selectedDate} ${endHour}:${endMinute}:00`;
+    const localDateTime_endTime = new Date(combinedDateTimeString_endTime);
+    // console.log("localDateTime_endTime", localDateTime_endTime);
+
+    const utcDateTime_endTime = localDateTime_endTime.toUTCString();
+    // console.log("utcDateTime_endTime", utcDateTime_endTime);
+
+    const formattedUTCTime_endTime = utcDateTime_endTime.toLocaleString(
+      "en-US",
+      { timeZone: "UTC" }
+    );
+    // console.log("formattedUTCTime_endTime", formattedUTCTime_endTime);
+
+    const utcFromFormatTime_endTime = DateTime.fromFormat(
+      formattedUTCTime_endTime,
+      "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
+    );
+    const utcTime_endTime = utcFromFormatTime_endTime.toFormat("HH:mm");
+    setUtcEndTime(utcTime_endTime);
+    console.log("utcTime_endTime", utcTime_endTime);
+    const [endHourTime, endMinuteTime] = utcTime_endTime.split(":");
+
+    const result = {
+      formattedUTCTime_startTime,
+      startHourTime,
+      startMinuteTime,
+      utcFromFormatTime_endTime,
+      endHourTime,
+      endMinuteTime,
+    };
+    return result;
+  };
+
+  const handleAddSelectedDate = async () => {
     if (selectedDate && startHour && startMinute && endHour && endMinute) {
+      const result = await getUTCTime(
+        selectedDate,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute
+      );
+      console.log("result", result);
+      console.log("selectedDate", selectedDate);
       const newDateAndRange = {
         date: new Date(selectedDate),
         timeRanges: [
           [
-            parseInt(startHour) || 0,
-            parseInt(startMinute) || 0,
-            parseInt(endHour) || 0,
-            parseInt(endMinute) || 0,
+            // parseInt(startHour) || "00",
+            // parseInt(startMinute) || "00",
+            // parseInt(endHour) || "00",
+            // parseInt(endMinute) || "00",
+            result.startHourTime || "00",
+            result.startMinuteTime || "00",
+            result.endHourTime || "00",
+            result.endMinuteTime || "00",
           ],
         ],
       };
+
+      console.log("newDateAndRange", newDateAndRange);
 
       setDateAndRanges([...dateAndRanges, newDateAndRange]);
       setSelectedDate("");
@@ -69,6 +155,13 @@ function TimeDatePicker() {
           <>
             <div style={{ display: "flex" }}>
               <div>
+                <div>
+                  Selected Date: {selectedDate}
+                  <br />
+                  User Time: {startTime} - {endTime}
+                  <br />
+                  UTC Time: {utcStartTime} - {utcEndTime}
+                </div>
                 <StyledTimeDayPicker>
                   <div className="dropdown" style={{ minWidth: "25%" }}>
                     <div>
@@ -109,58 +202,38 @@ function TimeDatePicker() {
                   <div>
                     <div style={{ marginBottom: "5px" }}>
                       <label>
-                        {/* Start Hour: */}
                         <input
-                          type="number"
-                          placeholder="Start Hour"
-                          value={startHour}
-                          onChange={(e) => setStartHour(e.target.value)}
+                          type="time"
+                          value={`${startHour}:${startMinute}`}
+                          onChange={(e) => {
+                            const [hour, minute] = e.target.value.split(":");
+                            setStartHour(hour);
+                            setStartMinute(minute);
+                            setStartTime(e.target.value);
+                          }}
                           style={{ border: "1px solid black", margin: "2px" }}
-                          min="0"
-                          max="24"
                         />
                       </label>
                       <label>
-                        {/* Start Minute: */}
                         <input
-                          type="number"
-                          placeholder="Start Minute"
-                          value={startMinute}
-                          onChange={(e) => setStartMinute(e.target.value)}
+                          type="time"
+                          value={`${endHour}:${endMinute}`}
+                          onChange={(e) => {
+                            const [hour, minute] = e.target.value.split(":");
+                            setEndHour(hour);
+                            setEndMinute(minute);
+                            setEndTime(e.target.value);
+                          }}
                           style={{ border: "1px solid black", margin: "2px" }}
-                          min="0"
-                          max="60"
-                        />
-                      </label>
-                      <label>
-                        {/* End Hour: */}
-                        <input
-                          type="number"
-                          placeholder="End Hour"
-                          value={endHour}
-                          onChange={(e) => setEndHour(e.target.value)}
-                          style={{ border: "1px solid black", margin: "2px" }}
-                          min="0"
-                          max="24"
-                        />
-                      </label>
-                      <label>
-                        {/* End Minute: */}
-                        <input
-                          type="number"
-                          placeholder="End Minute"
-                          value={endMinute}
-                          onChange={(e) => setEndMinute(e.target.value)}
-                          style={{ border: "1px solid black", margin: "2px" }}
-                          min="0"
-                          max="60"
                         />
                       </label>
                     </div>
                   </div>
                   <div>
                     <AddButton>
-                      <button onClick={handleAddSelectedDate}>Add Date</button>
+                      <button onClick={() => handleAddSelectedDate()}>
+                        Add Date
+                      </button>
                     </AddButton>
                   </div>
                   <div>
