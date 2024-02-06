@@ -76,16 +76,16 @@ function TimeDatePicker() {
         ],
       ],
     };
-    setDateAndRanges([...dateAndRanges, newDateAndRange]);
-    const updatedAllowedDates = [...dateAndRanges, newDateAndRange].map(
-      ({ date }) => date
-    );
-    setAllowedDates(updatedAllowedDates);
+    // setDateAndRanges([...dateAndRanges, newDateAndRange]);
+    // const updatedAllowedDates = [...dateAndRanges, newDateAndRange].map(
+    //   ({ date }) => date
+    // );
+    // setAllowedDates(updatedAllowedDates);
 
     const dataToStore = {
       userAddress: address,
       timeSlotSizeMinutes: timeSlotSizeMinutes,
-      allowedDates: updatedAllowedDates,
+      allowedDates: selectedDate,
       dateAndRanges: newDateAndRange,
       UTCDateAndStartTime: result.formattedUTCTime_startTime,
       UTCStartTime: result.utcTime_startTime,
