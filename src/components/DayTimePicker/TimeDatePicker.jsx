@@ -28,6 +28,8 @@ function TimeDatePicker() {
   const [utcStartTime, setUtcStartTime] = useState("");
   const [utcEndTime, setUtcEndTime] = useState("");
 
+  const [combinedStart, setCombinedStart] = useState("");
+
   useEffect(() => {
     setIsLoading(true);
     setTimeout(() => {
@@ -35,8 +37,27 @@ function TimeDatePicker() {
     }, 2000);
   }, []);
 
+  const getLocalTimeFromUTC = (utcTimeString) => {
+    console.log("utcTimeString", utcTimeString);
+    const utcDateTime = new Date(utcTimeString);
+    console.log("utcDateTime", utcDateTime);
+    const localDateTime = new Date(
+      utcDateTime.toLocaleString(undefined, {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
+    );
+    return localDateTime;
+  };
+
   const handleApplyButtonClick = () => {
-    //  getUTCTime();
+    console.log("combinedStart", combinedStart);
+    // console.log("utcStartTime", utcStartTime);
+    // console.log("utcEndTime", utcEndTime);
+    const localStartTime = getLocalTimeFromUTC(combinedStart);
+    // const localEndTime = getLocalTimeFromUTC(utcEndTime);
+
+    console.log("localStartTime", localStartTime);
+    // console.log("localEndTime", localEndTime);
   };
 
   const getUTCTime = async (
@@ -50,6 +71,7 @@ function TimeDatePicker() {
     // console.log("userTimezone", userTimezone);
 
     const combinedDateTimeString_startTime = `${selectedDate} ${startHour}:${startMinute}:00`;
+    setCombinedStart(combinedDateTimeString_startTime);
     const localDateTime_startTime = new Date(combinedDateTimeString_startTime);
     // console.log("localDateTime_startTime", localDateTime_startTime);
 
@@ -97,7 +119,7 @@ function TimeDatePicker() {
       formattedUTCTime_startTime,
       startHourTime,
       startMinuteTime,
-      utcFromFormatTime_endTime,
+      formattedUTCTime_endTime,
       endHourTime,
       endMinuteTime,
     };
@@ -116,7 +138,7 @@ function TimeDatePicker() {
       console.log("result", result);
       console.log("selectedDate", selectedDate);
       const newDateAndRange = {
-        date: new Date(selectedDate),
+        date: new Date(result.formattedUTCTime_startTime),
         timeRanges: [
           [
             // parseInt(startHour) || "00",
