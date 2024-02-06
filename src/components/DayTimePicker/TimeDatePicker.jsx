@@ -12,8 +12,10 @@ import {
   RemoveButton,
 } from "@/components/style components/StylesTimeDayPicker.js";
 import { DateTime, Duration } from "luxon";
+import { useAccount } from "wagmi";
 
 function TimeDatePicker() {
+  const address = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [timeSlotSizeMinutes, setTimeSlotSizeMinutes] = useState(15);
   const [selectedDate, setSelectedDate] = useState("");
@@ -24,6 +26,7 @@ function TimeDatePicker() {
   const [endMinute, setEndMinute] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [allowedDates, setAllowedDates] = useState([]);
 
   const [utcStartTime, setUtcStartTime] = useState("");
   const [utcEndTime, setUtcEndTime] = useState("");
@@ -49,15 +52,48 @@ function TimeDatePicker() {
     return localDateTime;
   };
 
-  const handleApplyButtonClick = () => {
-    console.log("combinedStart", combinedStart);
-    // console.log("utcStartTime", utcStartTime);
-    // console.log("utcEndTime", utcEndTime);
-    const localStartTime = getLocalTimeFromUTC(combinedStart);
-    // const localEndTime = getLocalTimeFromUTC(utcEndTime);
+  const handleApplyButtonClick = async () => {
+    console.log("handleApplyButton call");
 
-    console.log("localStartTime", localStartTime);
-    // console.log("localEndTime", localEndTime);
+    const result = await getUTCTime(
+      selectedDate,
+      startHour,
+      startMinute,
+      endHour,
+      endMinute
+    );
+
+    console.log("result from getUTCTime", result);
+
+    const newDateAndRange = {
+      date: selectedDate,
+      timeRanges: [
+        [
+          result.startHourTime,
+          result.startMinuteTime,
+          result.endHourTime,
+          result.endMinuteTime,
+        ],
+      ],
+    };
+    setDateAndRanges([...dateAndRanges, newDateAndRange]);
+    const updatedAllowedDates = [...dateAndRanges, newDateAndRange].map(
+      ({ date }) => date
+    );
+    setAllowedDates(updatedAllowedDates);
+
+    const dataToStore = {
+      userAddress: address,
+      timeSlotSizeMinutes: timeSlotSizeMinutes,
+      allowedDates: updatedAllowedDates,
+      dateAndRanges: newDateAndRange,
+      UTCDateAndStartTime: result.formattedUTCTime_startTime,
+      UTCStartTime: result.utcTime_startTime,
+      UTCDateAndEndTime: result.formattedUTCTime_endTime,
+      UTCEndTime: result.utcTime_endTime,
+    };
+
+    console.log("dataToStore", dataToStore);
   };
 
   const getUTCTime = async (
@@ -90,7 +126,7 @@ function TimeDatePicker() {
     );
     const utcTime_startTime = utcFromFormatTime_startTime.toFormat("HH:mm");
     setUtcStartTime(utcTime_startTime);
-    console.log("utcTime_startTime", utcTime_startTime);
+    // console.log("utcTime_startTime", utcTime_startTime);
     const [startHourTime, startMinuteTime] = utcTime_startTime.split(":");
     //----------------------------------------------------------------//
     const combinedDateTimeString_endTime = `${selectedDate} ${endHour}:${endMinute}:00`;
@@ -112,59 +148,49 @@ function TimeDatePicker() {
     );
     const utcTime_endTime = utcFromFormatTime_endTime.toFormat("HH:mm");
     setUtcEndTime(utcTime_endTime);
-    console.log("utcTime_endTime", utcTime_endTime);
+    // console.log("utcTime_endTime", utcTime_endTime);
     const [endHourTime, endMinuteTime] = utcTime_endTime.split(":");
 
     const result = {
       formattedUTCTime_startTime,
+      utcTime_startTime,
       startHourTime,
       startMinuteTime,
       formattedUTCTime_endTime,
+      utcTime_endTime,
       endHourTime,
       endMinuteTime,
     };
     return result;
   };
 
-  const handleAddSelectedDate = async () => {
-    if (selectedDate && startHour && startMinute && endHour && endMinute) {
-      const result = await getUTCTime(
-        selectedDate,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute
-      );
-      console.log("result", result);
-      console.log("selectedDate", selectedDate);
-      const newDateAndRange = {
-        date: new Date(result.formattedUTCTime_startTime),
-        timeRanges: [
-          [
-            // parseInt(startHour) || "00",
-            // parseInt(startMinute) || "00",
-            // parseInt(endHour) || "00",
-            // parseInt(endMinute) || "00",
-            result.startHourTime || "00",
-            result.startMinuteTime || "00",
-            result.endHourTime || "00",
-            result.endMinuteTime || "00",
-          ],
-        ],
-      };
+  // const handleAddSelectedDate = async () => {
+  //   if (selectedDate && startHour && startMinute && endHour && endMinute) {
+  //     console.log("selectedDate", selectedDate);
+  //     const newDateAndRange = {
+  //       date: new Date(selectedDate),
+  //       timeRanges: [
+  //         [
+  //           parseInt(startHour) || "00",
+  //           parseInt(startMinute) || "00",
+  //           parseInt(endHour) || "00",
+  //           parseInt(endMinute) || "00",
+  //         ],
+  //       ],
+  //     };
 
-      console.log("newDateAndRange", newDateAndRange);
+  //     console.log("newDateAndRange", newDateAndRange);
 
-      setDateAndRanges([...dateAndRanges, newDateAndRange]);
-      setSelectedDate("");
-      setStartHour("");
-      setStartMinute("");
-      setEndHour("");
-      setEndMinute("");
-    }
-  };
+  //     setDateAndRanges([...dateAndRanges, newDateAndRange]);
+  //     setSelectedDate("");
+  //     setStartHour("");
+  //     setStartMinute("");
+  //     setEndHour("");
+  //     setEndMinute("");
+  //   }
+  // };
 
-  const allowedDates = dateAndRanges.map(({ date }) => date);
+  // const allowedDates = dateAndRanges.map(({ date }) => date);
 
   return (
     <>
@@ -252,22 +278,22 @@ function TimeDatePicker() {
                     </div>
                   </div>
                   <div>
-                    <AddButton>
+                    {/* <AddButton>
                       <button onClick={() => handleAddSelectedDate()}>
                         Add Date
                       </button>
-                    </AddButton>
+                    </AddButton> */}
                   </div>
                   <div>
                     <h3>Selected Dates:</h3>
                     <ul>
-                      {dateAndRanges.map(({ date, timeRanges }) => (
+                      {/* {dateAndRanges.map(({ date, timeRanges }) => (
                         <li key={date.toISOString()}>
                           {date.toDateString()} - Time Range: [
                           {timeRanges[0][0]}, {timeRanges[0][1]},{" "}
                           {timeRanges[0][2]}, {timeRanges[0][3]}]
                         </li>
-                      ))}
+                      ))} */}
                     </ul>
                   </div>
                   <StyledButton onClick={handleApplyButtonClick}>

@@ -5,7 +5,8 @@ import { StyledTimePickerContainer, } from "@/components/style components/Styles
 import DayTimeScheduler from '@captainwalterdev/daytimescheduler';
 import { fakeRequest } from './fakeRequest';
 
-function DayTimeSchedule({ timeSlotSizeMinutes, allowedDates, dateAndRanges }) {
+// function DayTimeSchedule({ timeSlotSizeMinutes, allowedDates, dateAndRanges }) {
+function DayTimeSchedule() {
     const [isScheduling, setIsScheduling] = useState(false);
     const [isScheduled, setIsScheduled] = useState(false);
     const [scheduleErr, setScheduleErr] = useState('');
@@ -42,6 +43,16 @@ function DayTimeSchedule({ timeSlotSizeMinutes, allowedDates, dateAndRanges }) {
                 setIsScheduling(false);
             });
     };
+
+    const timeSlotSizeMinutes = 15;
+
+    const dateAndRanges = [
+        { date: new Date('2024-02-11'), timeRanges: [[9, 0, 12, 0]] },
+        { date: new Date("2024-02-22"), timeRanges: [[10, 0, 13, 0]] },
+    ];
+
+    const allowedDates = dateAndRanges.map(({ date }) => date);
+
 
     function timeSlotValidator(slotTime, dateAndRanges) {
         for (const { date, timeRanges } of dateAndRanges) {
