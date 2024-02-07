@@ -12,37 +12,68 @@ function DayTimeSchedule() {
     const [isScheduled, setIsScheduled] = useState(false);
     const [scheduleErr, setScheduleErr] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [APIData, setAPIData] = useState()
+    const [APIData, setAPIData] = useState();
+    const [combinedStart, setCombinedStart] = useState("");
+    const [timeSlotSizeMinutes, setTimeSlotSizeMinutes] = useState();
+    const [dateAndRanges, setDateAndRanges] = useState([])
+    const [allowedDates, setAllowedDates] = useState([]);
 
     useEffect(() => {
         const loadingTimeout = setTimeout(() => {
             setIsLoading(false);
         }, 2000);
 
+        const getAvailability = async () => {
+            try {
+                const response = await fetch(`/api/get-availability/${address}`, {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                })
+
+                const result = await response.json();
+                console.log("result", result);
+                if (result.success) {
+                    setAPIData(result.data)
+                    const { timeSlotSizeMinutes, allowedDates, dateAndRanges } = result.data;
+                    setTimeSlotSizeMinutes(timeSlotSizeMinutes);
+                    setAllowedDates(allowedDates);
+                    setDateAndRanges(dateAndRanges);
+                }
+            } catch (error) {
+                console.log("error in catch", error);
+            }
+        }
+
+        getAvailability()
         return () => {
             clearTimeout(loadingTimeout);
         };
     }, []);
 
-
-    const getAvailability = async () => {
-        try {
-            const response = await fetch(`/api/get-availability/${address}`, {
-                method: 'GET',
-                headers: {
-                    "Content-Type": "application/json",
-                }
+    const getLocalTimeFromUTC = (utcTimeString) => {
+        console.log("utcTimeString", utcTimeString);
+        console.log("APIData", APIData[3].dateAndRanges[0].formattedUTCTime_startTime);
+        const utcDateTime = new Date(APIData[3].dateAndRanges[0].formattedUTCTime_startTime);
+        // const utcDateTime = new Date(utcTimeString);
+        console.log("utcDateTime", utcDateTime);
+        const localDateTime = new Date(
+            utcDateTime.toLocaleString(undefined, {
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             })
+        );
+        return localDateTime;
+    };
 
-            const result = await response.json();
-            console.log("result", result);
-            if (result.success) {
-                setAPIData(result.data)
-            }
-        } catch (error) {
-            console.log("error in catch", error);
-        }
-    }
+    const handleApplyButtonClick = () => {
+        console.log("combinedStart", combinedStart);
+        const localStartTime = getLocalTimeFromUTC(combinedStart);
+        // const localEndTime = getLocalTimeFromUTC(utcEndTime);
+
+        console.log("localStartTime", localStartTime);
+        // console.log("localEndTime", localEndTime);
+    };
 
 
 
@@ -68,28 +99,28 @@ function DayTimeSchedule() {
             });
     };
 
-    const timeSlotSizeMinutes = 15;
+    // const timeSlotSizeMinutes = 15;
 
-    const dateAndRanges = [
-        {
-            date: new Date('2024-02-11'),
-            timeRanges: [[9, 0, 12, 0]],
-            formattedUTCTime_startTime: "Sun, 11 Feb 2024 09:00:00 GMT",
-            utcTime_startTime: "09:00",
-            formattedUTCTime_endTime: "Sun, 11 Feb 2024 12:00:00 GMT",
-            utcTime_endTime: "12:00"
-        },
-        {
-            date: new Date("2024-02-22"),
-            timeRanges: [[10, 0, 13, 0]],
-            formattedUTCTime_startTime: "Thu, 22 Feb 2024 10:00:00 GMT",
-            utcTime_startTime: "10:00",
-            formattedUTCTime_endTime: "Thu, 22 Feb 2024 13:00:00 GMT",
-            utcTime_endTime: "13:00"
-        },
-    ];
+    // const dateAndRanges = [
+    //     {
+    //         date: new Date('2024-02-11'),
+    //         timeRanges: [[9, 0, 12, 0]],
+    //         formattedUTCTime_startTime: "Sun, 11 Feb 2024 09:00:00 GMT",
+    //         utcTime_startTime: "09:00",
+    //         formattedUTCTime_endTime: "Sun, 11 Feb 2024 12:00:00 GMT",
+    //         utcTime_endTime: "12:00"
+    //     },
+    //     {
+    //         date: new Date("2024-02-22"),
+    //         timeRanges: [[10, 0, 13, 0]],
+    //         formattedUTCTime_startTime: "Thu, 22 Feb 2024 10:00:00 GMT",
+    //         utcTime_startTime: "10:00",
+    //         formattedUTCTime_endTime: "Thu, 22 Feb 2024 13:00:00 GMT",
+    //         utcTime_endTime: "13:00"
+    //     },
+    // ];
 
-    const allowedDates = dateAndRanges.map(({ date }) => date);
+    // const allowedDates = dateAndRanges.map(({ date }) => date);
 
 
     function timeSlotValidator(slotTime, dateAndRanges) {
@@ -128,24 +159,31 @@ function DayTimeSchedule() {
     return (
         <div className="" style={{ display: "flex" }}>
 
-            <StyledTimePickerContainer>
-                {isLoading ? (
+            {isLoading ? (
+                <StyledTimePickerContainer>
                     <div style={{ padding: "1rem" }}>Loading...</div>
-                ) : (
-                    <>
-                        <DayTimeScheduler
-                            allowedDates={allowedDates}
-                            timeSlotSizeMinutes={timeSlotSizeMinutes}
-                            isLoading={isScheduling}
-                            isDone={isScheduled}
-                            err={scheduleErr}
-                            onConfirm={handleScheduled}
-                            // timeSlotValidator={(slotTime) => timeSlotValidator(slotTime, allowedDates, timeRanges)}
-                            timeSlotValidator={(slotTime) => timeSlotValidator(slotTime, dateAndRanges)}
-                        />
-                    </>
-                )}
-            </StyledTimePickerContainer>
+                </StyledTimePickerContainer>
+            ) : (
+                <>
+                    <div style={{ margin: "1rem" }}>
+                        <button onClick={() => handleApplyButtonClick()}>ConvertTime</button>
+                    </div>
+                    <StyledTimePickerContainer>
+                        <div>
+                            <DayTimeScheduler
+                                allowedDates={allowedDates}
+                                timeSlotSizeMinutes={timeSlotSizeMinutes}
+                                isLoading={isScheduling}
+                                isDone={isScheduled}
+                                err={scheduleErr}
+                                onConfirm={handleScheduled}
+                                // timeSlotValidator={(slotTime) => timeSlotValidator(slotTime, allowedDates, timeRanges)}
+                                timeSlotValidator={(slotTime) => timeSlotValidator(slotTime, dateAndRanges)}
+                            />
+                        </div>
+                    </StyledTimePickerContainer>
+                </>
+            )}
         </div >
     );
 }
