@@ -12,10 +12,10 @@ function DayTimeSchedule() {
     const [isScheduled, setIsScheduled] = useState(false);
     const [scheduleErr, setScheduleErr] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [APIData, setAPIData] = useState();
     const [combinedStart, setCombinedStart] = useState("");
+    const [APIData, setAPIData] = useState();
     const [timeSlotSizeMinutes, setTimeSlotSizeMinutes] = useState();
-    const [dateAndRanges, setDateAndRanges] = useState([])
+    const [dateAndRanges2, setDateAndRanges] = useState([])
     const [allowedDates, setAllowedDates] = useState([]);
 
     useEffect(() => {
@@ -101,24 +101,27 @@ function DayTimeSchedule() {
 
     // const timeSlotSizeMinutes = 15;
 
-    // const dateAndRanges = [
-    //     {
-    //         date: new Date('2024-02-11'),
-    //         timeRanges: [[9, 0, 12, 0]],
-    //         formattedUTCTime_startTime: "Sun, 11 Feb 2024 09:00:00 GMT",
-    //         utcTime_startTime: "09:00",
-    //         formattedUTCTime_endTime: "Sun, 11 Feb 2024 12:00:00 GMT",
-    //         utcTime_endTime: "12:00"
-    //     },
-    //     {
-    //         date: new Date("2024-02-22"),
-    //         timeRanges: [[10, 0, 13, 0]],
-    //         formattedUTCTime_startTime: "Thu, 22 Feb 2024 10:00:00 GMT",
-    //         utcTime_startTime: "10:00",
-    //         formattedUTCTime_endTime: "Thu, 22 Feb 2024 13:00:00 GMT",
-    //         utcTime_endTime: "13:00"
-    //     },
-    // ];
+    // console.log("APIData[3].dateAndRanges[0].formattedUTCTime_startTime", APIData[3].dateAndRanges[0].formattedUTCTime_startTime)
+
+    const dateAndRanges = [
+        {
+            date: new Date('2024-02-11'),
+            // date: new Date('2024-02-11'),
+            timeRanges: [[9, 0, 12, 0]],
+            formattedUTCTime_startTime: "Sun, 11 Feb 2024 09:00:00 GMT",
+            utcTime_startTime: "09:00",
+            formattedUTCTime_endTime: "Sun, 11 Feb 2024 12:00:00 GMT",
+            utcTime_endTime: "12:00"
+        },
+        {
+            date: new Date("2024-02-22"),
+            timeRanges: [[10, 0, 13, 0]],
+            formattedUTCTime_startTime: "Thu, 22 Feb 2024 10:00:00 GMT",
+            utcTime_startTime: "10:00",
+            formattedUTCTime_endTime: "Thu, 22 Feb 2024 13:00:00 GMT",
+            utcTime_endTime: "13:00"
+        },
+    ];
 
     // const allowedDates = dateAndRanges.map(({ date }) => date);
 
