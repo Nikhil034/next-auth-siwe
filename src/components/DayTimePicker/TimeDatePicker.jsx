@@ -55,37 +55,11 @@ function TimeDatePicker() {
   const handleApplyButtonClick = async () => {
     console.log("handleApplyButton call");
 
-    const result = await getUTCTime(
-      selectedDate,
-      startHour,
-      startMinute,
-      endHour,
-      endMinute
-    );
-
-    console.log("result from getUTCTime", result);
-
-    const newDateAndRange = {
-      date: selectedDate,
-      timeRanges: [
-        [
-          result.startHourTime,
-          result.startMinuteTime,
-          result.endHourTime,
-          result.endMinuteTime,
-        ],
-      ],
-    };
-
     const dataToStore = {
       userAddress: address,
       timeSlotSizeMinutes: timeSlotSizeMinutes,
-      allowedDates: selectedDate,
-      dateAndRanges: newDateAndRange,
-      formattedUTCTime_startTime: result.formattedUTCTime_startTime,
-      utcTime_startTime: result.utcTime_startTime,
-      formattedUTCTime_endTime: result.formattedUTCTime_endTime,
-      utcTime_endTime: result.utcTime_endTime,
+      allowedDates: allowedDates,
+      dateAndRanges: dateAndRanges,
     };
 
     console.log("dataToStore", dataToStore);
@@ -99,7 +73,7 @@ function TimeDatePicker() {
     try {
       console.log("calling.......");
       const response = await fetch("/api/store-availibility", requestOptions);
-      const result = await response.text();
+      const result = await response.json();
       console.log(result);
     } catch (error) {
       console.error("Error:", error);
@@ -174,33 +148,45 @@ function TimeDatePicker() {
     return result;
   };
 
-  // const handleAddSelectedDate = async () => {
-  //   if (selectedDate && startHour && startMinute && endHour && endMinute) {
-  //     console.log("selectedDate", selectedDate);
-  //     const newDateAndRange = {
-  //       date: new Date(selectedDate),
-  //       timeRanges: [
-  //         [
-  //           parseInt(startHour) || "00",
-  //           parseInt(startMinute) || "00",
-  //           parseInt(endHour) || "00",
-  //           parseInt(endMinute) || "00",
-  //         ],
-  //       ],
-  //     };
+  const handleAddSelectedDate = async () => {
+    const result = await getUTCTime(
+      selectedDate,
+      startHour,
+      startMinute,
+      endHour,
+      endMinute
+    );
 
-  //     console.log("newDateAndRange", newDateAndRange);
+    const newDateAndRange = {
+      date: selectedDate,
+      timeRanges: [
+        [
+          result.startHourTime,
+          result.startMinuteTime,
+          result.endHourTime,
+          result.endMinuteTime,
+        ],
+      ],
+      formattedUTCTime_startTime: result.formattedUTCTime_startTime,
+      utcTime_startTime: result.utcTime_startTime,
+      formattedUTCTime_endTime: result.formattedUTCTime_endTime,
+      utcTime_endTime: result.utcTime_endTime,
+    };
 
-  //     setDateAndRanges([...dateAndRanges, newDateAndRange]);
-  //     setSelectedDate("");
-  //     setStartHour("");
-  //     setStartMinute("");
-  //     setEndHour("");
-  //     setEndMinute("");
-  //   }
-  // };
-
-  // const allowedDates = dateAndRanges.map(({ date }) => date);
+    // setDateAndRanges([...dateAndRanges, newDateAndRange]);
+    setDateAndRanges((prevDateAndRanges) => [
+      ...prevDateAndRanges,
+      newDateAndRange,
+    ]);
+    setAllowedDates([...allowedDates, selectedDate]);
+    setSelectedDate("");
+    setStartHour("");
+    setStartMinute("");
+    setEndHour("");
+    setEndMinute("");
+    setStartTime("");
+    setEndTime("");
+  };
 
   return (
     <>
@@ -285,25 +271,24 @@ function TimeDatePicker() {
                           style={{ border: "1px solid black", margin: "2px" }}
                         />
                       </label>
+                      <AddButton>
+                        <button onClick={handleAddSelectedDate}>
+                          Add Date
+                        </button>
+                      </AddButton>
                     </div>
-                  </div>
-                  <div>
-                    {/* <AddButton>
-                      <button onClick={() => handleAddSelectedDate()}>
-                        Add Date
-                      </button>
-                    </AddButton> */}
                   </div>
                   <div>
                     <h3>Selected Dates:</h3>
                     <ul>
-                      {/* {dateAndRanges.map(({ date, timeRanges }) => (
-                        <li key={date.toISOString()}>
-                          {date.toDateString()} - Time Range: [
-                          {timeRanges[0][0]}, {timeRanges[0][1]},{" "}
-                          {timeRanges[0][2]}, {timeRanges[0][3]}]
+                      {dateAndRanges.map((item, index) => (
+                        <li key={index}>
+                          {item.date} -{" "}
+                          {item.timeRanges
+                            .map((time) => time.join(":"))
+                            .join(", ")}
                         </li>
-                      ))} */}
+                      ))}
                     </ul>
                   </div>
                   <StyledButton onClick={handleApplyButtonClick}>
@@ -315,7 +300,6 @@ function TimeDatePicker() {
                 <DayTimeSchedule
                   timeSlotSizeMinutes={timeSlotSizeMinutes}
                   allowedDates={allowedDates}
-                  // timeRanges={timeRanges}
                   dateAndRanges={dateAndRanges}
                 />
               </div>

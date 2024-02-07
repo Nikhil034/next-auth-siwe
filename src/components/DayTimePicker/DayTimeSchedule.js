@@ -47,8 +47,22 @@ function DayTimeSchedule() {
     const timeSlotSizeMinutes = 15;
 
     const dateAndRanges = [
-        { date: new Date('2024-02-11'), timeRanges: [[9, 0, 12, 0]] },
-        { date: new Date("2024-02-22"), timeRanges: [[10, 0, 13, 0]] },
+        {
+            date: new Date('2024-02-11'),
+            timeRanges: [[9, 0, 12, 0]],
+            formattedUTCTime_startTime: "Sun, 11 Feb 2024 09:00:00 GMT",
+            utcTime_startTime: "09:00",
+            formattedUTCTime_endTime: "Sun, 11 Feb 2024 12:00:00 GMT",
+            utcTime_endTime: "12:00"
+        },
+        {
+            date: new Date("2024-02-22"),
+            timeRanges: [[10, 0, 13, 0]],
+            formattedUTCTime_startTime: "Thu, 22 Feb 2024 10:00:00 GMT",
+            utcTime_startTime: "10:00",
+            formattedUTCTime_endTime: "Thu, 22 Feb 2024 13:00:00 GMT",
+            utcTime_endTime: "13:00"
+        },
     ];
 
     const allowedDates = dateAndRanges.map(({ date }) => date);

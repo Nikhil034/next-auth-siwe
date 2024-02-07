@@ -10,6 +10,10 @@ interface StoreAvailabilityRequestBody {
   dateAndRanges: Array<{
     date: string;
     timeRanges: Array<[string, string, string, string]>;
+    formattedUTCTime_startTime: string;
+    utcTime_startTime: string;
+    formattedUTCTime_endTime: string;
+    utcTime_endTime: string;
   }>;
 }
 
@@ -24,10 +28,14 @@ interface StoreAvailabilityResponseBody {
     dateAndRanges: Array<{
       date: string;
       timeRanges: Array<[string, string, string, string]>;
+      formattedUTCTime_startTime: string;
+      utcTime_startTime: string;
+      formattedUTCTime_endTime: string;
+      utcTime_endTime: string;
     }>;
     createdAt: Date;
     updatedAt: Date;
-  } | null; // Allow null for the data property
+  } | null;
   error?: string;
 }
 
@@ -40,16 +48,7 @@ export async function POST(
     timeSlotSizeMinutes,
     allowedDates,
     dateAndRanges,
-    formattedUTCTime_startTime,
-    utcTime_startTime,
-    formattedUTCTime_endTime,
-    utcTime_endTime,
-  }: StoreAvailabilityRequestBody & {
-    formattedUTCTime_startTime: string;
-    utcTime_startTime: string;
-    formattedUTCTime_endTime: string;
-    utcTime_endTime: string;
-  } = await req.json();
+  }: StoreAvailabilityRequestBody = await req.json();
 
   try {
     // Connect to your MongoDB database
@@ -70,10 +69,6 @@ export async function POST(
       timeSlotSizeMinutes,
       allowedDates,
       dateAndRanges,
-      formattedUTCTime_startTime,
-      utcTime_startTime,
-      formattedUTCTime_endTime,
-      utcTime_endTime,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -105,3 +100,44 @@ export async function POST(
   }
 }
 
+export async function GET(
+  req: Request,
+  res: NextResponse<StoreAvailabilityResponseBody>
+) {
+  console.log("GET req call");
+  try {
+    // Connect to MongoDB
+    console.log("Connecting to MongoDB...");
+    const client = await MongoClient.connect(process.env.MONGODB_URI!, {
+      dbName: `chora-club`,
+    } as MongoClientOptions);
+    console.log("Connected to MongoDB");
+
+    // Access the collection
+    const db = client.db();
+    const collection = db.collection("scheduling");
+
+    // Extract userAddress from request parameters
+    const userAddress = req.body;
+
+    // Find documents based on userAddress
+    console.log("Finding documents for user:", userAddress);
+    const documents = await collection.find({ userAddress }).toArray();
+    console.log("Documents found:", documents);
+
+    client.close();
+    console.log("MongoDB connection closed");
+
+    // Return the found documents
+    return NextResponse.json(
+      { success: true, data: documents },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error retrieving data:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}

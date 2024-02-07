@@ -22,7 +22,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/DayTimePicker/TimeDatePicker.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/DayTimePicker/TimeDatePicker.jsx", "src/app/api/store-availibility/[userAddress]"],
   "exclude": ["node_modules"]
 }
 
