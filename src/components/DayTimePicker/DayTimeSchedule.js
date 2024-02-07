@@ -4,13 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { StyledTimePickerContainer, } from "@/components/style components/StylesDayTimeSchedule";
 import DayTimeScheduler from '@captainwalterdev/daytimescheduler';
 import { fakeRequest } from './fakeRequest';
+import { useAccount } from 'wagmi';
 
-// function DayTimeSchedule({ timeSlotSizeMinutes, allowedDates, dateAndRanges }) {
 function DayTimeSchedule() {
+    const { address } = useAccount();
     const [isScheduling, setIsScheduling] = useState(false);
     const [isScheduled, setIsScheduled] = useState(false);
     const [scheduleErr, setScheduleErr] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [APIData, setAPIData] = useState()
 
     useEffect(() => {
         const loadingTimeout = setTimeout(() => {
@@ -21,6 +23,28 @@ function DayTimeSchedule() {
             clearTimeout(loadingTimeout);
         };
     }, []);
+
+
+    const getAvailability = async () => {
+        try {
+            const response = await fetch(`/api/get-availability/${address}`, {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+
+            const result = await response.json();
+            console.log("result", result);
+            if (result.success) {
+                setAPIData(result.data)
+            }
+        } catch (error) {
+            console.log("error in catch", error);
+        }
+    }
+
+
 
     const handleScheduled = (date) => {
         setIsScheduling(true);
