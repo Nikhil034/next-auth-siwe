@@ -15,7 +15,7 @@ import { DateTime, Duration } from "luxon";
 import { useAccount } from "wagmi";
 
 function TimeDatePicker() {
-  const address = useAccount();
+  const { address } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [timeSlotSizeMinutes, setTimeSlotSizeMinutes] = useState(15);
   const [selectedDate, setSelectedDate] = useState("");
@@ -82,13 +82,28 @@ function TimeDatePicker() {
       timeSlotSizeMinutes: timeSlotSizeMinutes,
       allowedDates: selectedDate,
       dateAndRanges: newDateAndRange,
-      UTCDateAndStartTime: result.formattedUTCTime_startTime,
-      UTCStartTime: result.utcTime_startTime,
-      UTCDateAndEndTime: result.formattedUTCTime_endTime,
-      UTCEndTime: result.utcTime_endTime,
+      formattedUTCTime_startTime: result.formattedUTCTime_startTime,
+      utcTime_startTime: result.utcTime_startTime,
+      formattedUTCTime_endTime: result.formattedUTCTime_endTime,
+      utcTime_endTime: result.utcTime_endTime,
     };
 
     console.log("dataToStore", dataToStore);
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataToStore),
+      redirect: "follow",
+    };
+
+    try {
+      console.log("calling.......");
+      const response = await fetch("/api/store-availibility", requestOptions);
+      const result = await response.text();
+      console.log(result);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const getUTCTime = async (
