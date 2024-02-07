@@ -105,3 +105,42 @@ export async function POST(
   }
 }
 
+export async function GET(
+  request: NextRequest,
+  res: NextResponse
+) {
+  const userAddress = request.url.split("store-availibility/")[1];
+  console.log(userAddress);
+
+  try {
+    // Connect to MongoDB
+    const client = await MongoClient.connect(process.env.MONGODB_URI!, {
+      dbName: `chora-club`,
+    } as MongoClientOptions);
+
+    // Access the collection
+    const db = client.db();
+    const collection = db.collection("scheduling");
+
+    console.log("this is address", userAddress);
+
+    // Find documents based on userAddress
+    const documents = await collection.find({ userAddress }).toArray();
+    console.log(documents);
+
+    // Close MongoDB connection
+    client.close();
+
+    // Return response
+    return NextResponse.json(
+      { success: true, data: documents },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error retrieving data:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
