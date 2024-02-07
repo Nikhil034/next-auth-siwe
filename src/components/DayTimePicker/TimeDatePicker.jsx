@@ -76,11 +76,6 @@ function TimeDatePicker() {
         ],
       ],
     };
-    // setDateAndRanges([...dateAndRanges, newDateAndRange]);
-    // const updatedAllowedDates = [...dateAndRanges, newDateAndRange].map(
-    //   ({ date }) => date
-    // );
-    // setAllowedDates(updatedAllowedDates);
 
     const dataToStore = {
       userAddress: address,
