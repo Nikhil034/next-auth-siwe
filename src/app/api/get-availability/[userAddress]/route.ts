@@ -3,7 +3,7 @@ import { MongoClient, MongoClientOptions } from "mongodb";
 
 export async function GET(request: NextRequest, res: NextResponse) {
   console.log("POST req call");
-  const userAddress = request.url.split("get-availibility/")[1];
+  const userAddress = request.url.split("get-availability/")[1];
   console.log(userAddress);
   try {
     // Connect to MongoDB
