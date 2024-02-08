@@ -72,7 +72,7 @@ function TimeDatePicker() {
 
     try {
       console.log("calling.......");
-      const response = await fetch("/api/store-availibility", requestOptions);
+      const response = await fetch("/api/store-availability", requestOptions);
       const result = await response.json();
       console.log(result);
     } catch (error) {
